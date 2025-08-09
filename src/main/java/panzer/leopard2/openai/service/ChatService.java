@@ -1,5 +1,6 @@
 package panzer.leopard2.openai.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -12,19 +13,17 @@ import panzer.leopard2.openai.entity.Movie;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ChatService {
     private final ChatClient chatClient;
     private final ChatClient chatClient2;
     private final ChatClient chatClient3;
+    private final ChatClient chatClient4;
 
-    public ChatService(ChatClient chatClient,ChatClient chatClient2,ChatClient chatClient3) {
-        this.chatClient = chatClient;
-        this.chatClient2 = chatClient2;
-        this.chatClient3 = chatClient3;
-    }
     public String chat(String message) {
         return chatClient.prompt() // 프롬프트 생성
                 .user(message) // 사용자 메세지
@@ -111,5 +110,27 @@ public class ChatService {
                 .call()
                 .entity(new ParameterizedTypeReference<List<Movie>>() {});
         return movieList;
+    }
+
+    public String getResponse(String message){
+        return chatClient4.prompt()
+                .user(message)
+                .call()
+                .content();
+    }
+
+    public void startChat(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your message: ");
+        while (true) {
+            String message = scanner.nextLine();
+            if (message.equals("exit")) {
+                System.out.println("Exiting chat...");
+                break;
+            }
+            String response = getResponse(message);
+            System.out.println("Bot : " + response);
+        }
+        scanner.close();
     }
 }
