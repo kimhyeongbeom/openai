@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import panzer.leopard2.openai.entity.Answer;
+import panzer.leopard2.openai.entity.Movie;
 import panzer.leopard2.openai.service.ChatService;
 
 import java.util.List;
@@ -56,5 +57,10 @@ public class ChatController {
     @GetMapping("/chatmap")
     public Map<String, String> chatmap(String message){
         return chatService.chatmap(message);
+    }
+
+    @GetMapping("/chatmovie")
+    public List<Movie> chatmovie(String directorName) {
+        return chatService.chatmovie(directorName);
     }
 }

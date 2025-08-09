@@ -1,5 +1,6 @@
 package panzer.leopard2.openai.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.converter.ListOutputConverter;
@@ -7,11 +8,13 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.stereotype.Service;
 import panzer.leopard2.openai.entity.Answer;
+import panzer.leopard2.openai.entity.Movie;
 
 import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class ChatService {
     private final ChatClient chatClient;
     private final ChatClient chatClient2;
@@ -39,6 +42,7 @@ public class ChatService {
                 .getText();
     }
     public String chatplace(String subject, String tone, String message) {
+        log.info("subject: {}, tone: {}, message : {}",subject, tone, message);
         return chatClient3.prompt()
                 .user(message)
                 .system(sp->sp
@@ -92,5 +96,20 @@ public class ChatService {
                 .user(message)
                 .call()
                 .entity(new ParameterizedTypeReference<Map<String, String>>(){ });
+    }
+
+    public List<Movie> chatmovie(String directorName) {
+        String template = """
+            Generate a list of movies directed by {directorName}. If the director is unknown, return null.
+            한국영화는 한글로 표기해줘.
+            Each movie should include a title and release year.{format}
+            """;
+        List<Movie> movieList = chatClient.prompt()
+                .user(userSpec -> userSpec.text(template)
+                        .param("directorName", directorName)
+                        .param("format", "json"))
+                .call()
+                .entity(new ParameterizedTypeReference<List<Movie>>() {});
+        return movieList;
     }
 }
